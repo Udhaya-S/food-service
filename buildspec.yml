@@ -11,13 +11,35 @@ phases:
   build:
     commands:
       - echo Building JAR...
-      - mvn clean package -DskipTests
+      - mvn spring-boot:build-image -DskipTests
       - echo Building Docker Image...
       - docker build -t potatomann/myapp:latest .
   post_build:
     commands:
       - echo Pushing Docker image to Docker Hub...
       - docker push potatomann/myapp:latest
+      - echo Creating Dockerrun.aws.json...
+      - |
+        cat <<EOF > Dockerrun.aws.json
+        {
+          "AWSEBDockerrunVersion": 1,
+          "Image": {
+            "Name": "potatomann/myapp:latest",
+            "Update": "true"
+          },
+          "Ports": [
+            {
+              "ContainerPort": "8080"
+            }
+          ]
+        }
+        EOF
+      - echo Zipping for deployment...
+      - zip -r deploy.zip Dockerrun.aws.json
+
+artifacts:
+  files:
+    - deploy.zip
 
 env:
   secrets-manager:
