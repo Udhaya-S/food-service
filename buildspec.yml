@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+  pre_build:
+    commands:
+      - echo Logging in to Docker Hub...
+      - echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+  build:
+    commands:
+      - echo Building JAR...
+      - mvn clean package -DskipTests
+      - echo Building Docker Image...
+      - docker build -t potatomann/myapp:latest .
+  post_build:
+    commands:
+      - echo Pushing Docker image to Docker Hub...
+      - docker push potatomannr/myapp:latest
+
+env:
+  secrets-manager:
+    DOCKER_HUB_USERNAME: dockerhub-creds:username
+    DOCKER_HUB_PASSWORD: dockerhub-creds:password
