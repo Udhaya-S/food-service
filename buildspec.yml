@@ -17,7 +17,7 @@ phases:
   post_build:
     commands:
       - echo Pushing Docker image to Docker Hub...
-      - docker push potatomannr/myapp:latest
+      - docker push potatomann/myapp:latest
 
 env:
   secrets-manager:
